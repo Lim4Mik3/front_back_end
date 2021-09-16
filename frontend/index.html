@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <ul id="listas-nomes"></ul>
+  <input type="text" placeholder="nome" id="nome" style="padding: 10px;">
+  <script>
+    const listaNomes = document.getElementById("lista-nomes")
+    const nome = document.getElementById("nome")
+
+    function criar(nome) {
+      const buttonDelete = document.createElement('button')
+      buttonDelete.innerText = "Excluir"
+      const item = document.createElement('li')
+      buttonDelete.addEventListener("click", function (ev){
+        fetch("http://localhost:8080/nomes",{
+          method: "DELETE",
+          headers: {
+            'Accept' : 'appliation/json',
+            'Content-Type' : 'appliation/json'
+          },
+          body: JSON.stringify({
+            name : item.innerText
+          })
+        })
+        .then(() => {
+          item.remove()
+        })
+      })
+      item.innerText = nome
+      item.append(buttonDelete)
+      listaNomes.append(item)
+    }
+
+    nome.addEventListener('keydown', function (ev){
+      if(ev.key == "Enter"){
+        fetch("http://localhost:8080/nomes",{
+          method: "POST",
+          headers: {
+            'Accept' : 'appliation/json',
+            'Content-Type' : 'appliation/json'
+          },
+          body: JSON.stringify({
+            name : item.innerText
+          })
+        })
+        .then(value => {
+          return value.json()
+        })
+        .then(value => {
+          console.log(value)
+          listaNomes.innerText = ""
+          for (let name of value){
+            criar(name)
+          }
+        })
+      }
+    })
+
+    function getNomes(){
+      fetch('http://localhost:8080/nomes')
+      .then(value => {
+          return value.json()
+        })
+        .then(value => {
+          for (let name of value){
+            criar(name)
+      }
+    })
+  }
+
+    getNomes()
+  </script>
+</body>
+</html>
